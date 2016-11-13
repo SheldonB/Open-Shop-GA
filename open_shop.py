@@ -43,8 +43,10 @@ class Schedule(object):
                 else:
                     machine.total_time = machine.total_time + (machine.power_factor * job.process_time)
 
+                print([row[0].machine.total_time for row in matrix])
+
                 job.finish_time = machine.total_time
-        return 0
+        return max([row[0].machine.total_time for row in matrix])
 
 class Population(object):
     def __init__(self, machines, jobs, size):
@@ -74,8 +76,8 @@ class Population(object):
 
             for row in s_copy:
                 s_copy[rand_col_1],s_copy[rand_col_2] = s_copy[rand_col_1],s_copy[rand_col_2]
-            members.append(Schedule(schedule_copy))
-
+            members.append(Schedule(s_copy))
+        
         return members
 
 def parse_args():
@@ -107,4 +109,19 @@ if __name__ == '__main__':
     args = parse_args()
     data = parse_file(args.file)
 
-    population = Population(data['machines'], data['jobs'], 100)
+    # population = Population(data['machines'], data['jobs'], 100)
+    # test = population.members[0]
+    machine_one = Machine(1, 1.0)
+    machine_two = Machine(2, 2.0)
+    machine_three = Machine(3, 3.0)
+    
+    job_one = Job(1, 1)
+    job_two = Job(2, 2)
+    job_three = Job(3, 3)
+
+    matrix = [[Instance(machine_one, job_three), Instance(machine_one, job_two), Instance(machine_one, job_one)],
+              [Instance(machine_two, job_two), Instance(machine_two, job_one), Instance(machine_two, job_three)],
+              [Instance(machine_three, job_one), Instance(machine_three, job_three), Instance(machine_three, job_two)]]
+
+    schedule = Schedule(matrix)
+    print(schedule.makespan)
