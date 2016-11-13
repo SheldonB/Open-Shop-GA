@@ -33,10 +33,10 @@ class Schedule(object):
     
     @property
     def makespan(self):
-        for i in range(len(matrix[0])):
-            for j in range(len(matrix)):
-                machine = matrix[j][i].machine
-                job = matrix[j][i].job
+        for i in range(len(self.matrix[0])):
+            for j in range(len(self.matrix)):
+                machine = self.matrix[j][i].machine
+                job = self.matrix[j][i].job
 
                 if job.finish_time > machine.total_time:
                     machine.total_time = job.finish_time + (machine.power_factor * job.process_time)
@@ -45,7 +45,7 @@ class Schedule(object):
 
                 job.finish_time = machine.total_time
 
-        return max([row[0].machine.total_time for row in matrix])
+        return max([row[0].machine.total_time for row in self.matrix])
 
 class Population(object):
     def __init__(self, machines, jobs, size):
@@ -72,9 +72,9 @@ class Population(object):
             s_copy = copy.deepcopy(schedule)
             rand_col_1 = random.randint(0, len(jobs) - 1)
             rand_col_2 = random.randint(0, len(jobs) - 1)
-
+            print(rand_col_1, rand_col_2)
             for row in s_copy:
-                s_copy[rand_col_1],s_copy[rand_col_2] = s_copy[rand_col_1],s_copy[rand_col_2]
+                row[rand_col_1], row[rand_col_2] = row[rand_col_2], row[rand_col_1]
             members.append(Schedule(s_copy))
         
         return members
@@ -103,24 +103,11 @@ def parse_file(file_path):
             'jobs': jobs
             }
 
-
 if __name__ == '__main__':
     args = parse_args()
     data = parse_file(args.file)
 
-    # population = Population(data['machines'], data['jobs'], 100)
-    # test = population.members[0]
-    machine_one = Machine(1, 1.0)
-    machine_two = Machine(2, 2.0)
-    machine_three = Machine(3, 3.0)
-    
-    job_one = Job(1, 1)
-    job_two = Job(2, 2)
-    job_three = Job(3, 3)
+    population = Population(data['machines'], data['jobs'], 100)
 
-    matrix = [[Instance(machine_one, job_three), Instance(machine_one, job_two), Instance(machine_one, job_one)],
-              [Instance(machine_two, job_two), Instance(machine_two, job_one), Instance(machine_two, job_three)],
-              [Instance(machine_three, job_one), Instance(machine_three, job_three), Instance(machine_three, job_two)]]
-
-    schedule = Schedule(matrix)
-    print(schedule.makespan)
+    for member in population.members:
+        print(member.makespan)
