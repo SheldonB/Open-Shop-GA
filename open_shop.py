@@ -1,4 +1,4 @@
-import argparse, re
+import argparse, re, copy, random
 
 class Machine(object):
     def __init__(self, id, power_factor):
@@ -21,9 +21,19 @@ class Instance(object):
         self.machine = machine
         self.job = job
 
+    def __repr__(self):
+        return '(Machine: {}, Job:{})'.format(self.machine.id, self.job.id)
+
 class Schedule(object):
-    def __init__(self):
-        return
+    def __init__(self, matrix):
+        # self.makespan = None
+        self.matrix = matrix
+    
+    @property
+    def makespan(self):
+        if self.makespan is None:
+            self.makespan = 0
+        return self.makespan
 
 class Population(object):
     def __init__(self, machines, jobs, size):
@@ -32,9 +42,30 @@ class Population(object):
         self.members = self._seed_population(machines, jobs)
 
     def _seed_population(self, machines, jobs):
-        print(machines)
-        print(jobs)
-        return
+        members = []
+        # Generate a Latin Square Matrix. That has no repeating
+        # Columns and rows.
+        schedule = []
+        for i in range(0, len(machines)):
+            row = [Instance(machines[i], job) for job in jobs]
+            for j in range(0, i):
+                to_rotate = row.pop(0)
+                row.append(to_rotate)
+            schedule.append(row)
+        members.append(Schedule(schedule))  
+
+        # To generate random members for the population
+        # We can just swap the columns of the population
+        for i in range(1, self.population_size):
+            s_copy = copy.deepcopy(schedule)
+            rand_col_1 = random.randint(0, len(jobs) - 1)
+            rand_col_2 = random.randint(0, len(jobs) - 1)
+
+            for row in s_copy:
+                s_copy[rand_col_1],s_copy[rand_col_2] = s_copy[rand_col_1],s_copy[rand_col_2]
+            members.append(Schedule(schedule_copy))
+
+        return members
 
 def parse_args():
     arg_parser = argparse.ArgumentParser()
