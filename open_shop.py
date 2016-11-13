@@ -4,6 +4,7 @@ class Machine(object):
     def __init__(self, id, power_factor):
         self.id = id
         self.power_factor = power_factor
+        self.total_time = 0
 
     def __repr__(self):
         return '{}: {}'.format(self.id, self.power_factor)
@@ -12,6 +13,7 @@ class Job(object):
     def __init__(self, id, time):
         self.id = id
         self.process_time = time
+        self.finish_time = 0
 
     def __repr__(self):
         return '{}: {}'.format(self.id, self.process_time)
@@ -31,9 +33,18 @@ class Schedule(object):
     
     @property
     def makespan(self):
-        if self.makespan is None:
-            self.makespan = 0
-        return self.makespan
+        for row in matrix:
+            for instance in row:
+                machine = instance.machine
+                job = instance.job
+
+                if job.finish_time > machine.total_time:
+                    machine.total_time = job.finish_time + (machine.power_factor * job.process_time)
+                else:
+                    machine.total_time = machine.total_time + (machine.power_factor * job.process_time)
+
+                job.finish_time = machine.total_time
+        return 0
 
 class Population(object):
     def __init__(self, machines, jobs, size):
