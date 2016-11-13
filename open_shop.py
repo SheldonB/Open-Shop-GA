@@ -33,19 +33,18 @@ class Schedule(object):
     
     @property
     def makespan(self):
-        for row in matrix:
-            for instance in row:
-                machine = instance.machine
-                job = instance.job
+        for i in range(len(matrix[0])):
+            for j in range(len(matrix)):
+                machine = matrix[j][i].machine
+                job = matrix[j][i].job
 
                 if job.finish_time > machine.total_time:
                     machine.total_time = job.finish_time + (machine.power_factor * job.process_time)
                 else:
                     machine.total_time = machine.total_time + (machine.power_factor * job.process_time)
 
-                print([row[0].machine.total_time for row in matrix])
-
                 job.finish_time = machine.total_time
+
         return max([row[0].machine.total_time for row in matrix])
 
 class Population(object):
