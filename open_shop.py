@@ -88,6 +88,32 @@ class Population(object):
         
         return members
 
+    def _crossover(parent_one, parent_two):
+        """
+        Crossover method for the genetic algorithm.
+        The method takes two members of the population
+        and returns a child member of the population.
+        """
+        raise NotImplementedError()
+
+    def _mutate(member):
+        """
+        Mutation method for the genetic algorithm.
+        The method takes a member of the population 
+        that is chosen based on the mutation rate.
+
+        That member is then mutated, and a new member
+        is returned
+        """
+        raise NotImplementedError()
+
+    def evolve_population():
+        """
+        Evolve population will run generation of the
+        genetic algorithm.
+        """
+        raise NotImplementedError()
+
     def fittest(self, size):
         return sorted(self.members, key=attrgetter('makespan'))
 
