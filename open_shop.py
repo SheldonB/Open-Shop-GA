@@ -2,6 +2,11 @@ import argparse, re, copy, random
 
 from operator import attrgetter
 
+POPULATION = 100
+MUTATION = .025
+GENERATIONS = 100
+
+
 class Machine(object):
     def __init__(self, id, power_factor):
         self.id = id
@@ -90,6 +95,12 @@ def parse_args():
     arg_parser = argparse.ArgumentParser()
     arg_parser.add_argument('-f', '--file',
                             help='Enter file that contains data')
+    arg_parser.add_argument('-p', '--population', type=int, default=100,
+                            help='Population size of the genetic algorithm. Default=100')
+    arg_parser.add_argument('-m', '--mutation', type=float, default=2.5,
+                            help='Mutation rate of the genetic algorithm. Default=2.5')
+    arg_parser.add_argument('-g', '--generations', type=int, default=100,
+                            help='The number of generations for the GA to run. Default=100')
     return arg_parser.parse_args()
 
 def parse_file(file_path):
@@ -110,13 +121,17 @@ def parse_file(file_path):
             'jobs': jobs
             }
 
+def start_ga(population):
+    for i in range(GENERATIONS):
+        print('WOOO GA')
+
 if __name__ == '__main__':
     args = parse_args()
+    POPULATION = args.population
+    MUTATION = args.mutation
+    GENERATIONS = args.generations
     data = parse_file(args.file)
 
-    population = Population(data['machines'], data['jobs'], 100)
-    # fit = population.fittest(10)
-    # for f in fit:
-        # print(f.makespan)
-    for member in population.fittest(100):
-        print(member.makespan)
+    population = Population(data['machines'], data['jobs'], POPULATION)
+    start_ga(population)
+
