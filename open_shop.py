@@ -117,6 +117,10 @@ class Population(object):
     def fittest(self, size):
         return sorted(self.members, key=attrgetter('makespan'))
 
+    def kill_weak(self):
+        weakest = max(self.members, key=attrgetter('makespan'))
+        self.members.remove(weakest)
+
 def parse_args():
     arg_parser = argparse.ArgumentParser()
     arg_parser.add_argument('-f', '--file',
