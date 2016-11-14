@@ -96,7 +96,7 @@ class Population(object):
         """
         raise NotImplementedError()
 
-    def _mutate(member):
+    def _mutate(self, member):
         """
         Mutation method for the genetic algorithm.
         The method takes a member of the population 
@@ -105,14 +105,23 @@ class Population(object):
         That member is then mutated, and a new member
         is returned
         """
-        raise NotImplementedError()
+        (index_one, index_two) = random.sample(range(0, len(member.matrix)), 2)
 
-    def evolve_population():
+        temp_id_1 = member.matrix[index_one][0].machine.id
+        temp_id_2 = member.matrix[index_two][0].machine.id
+        member.matrix[index_one], member.matrix[index_two] = member.matrix[index_two], member.matrix[index_one]
+
+        for i in range(len(member.matrix)):
+            member.matrix[index_one][i].machine.id = temp_id_1
+            member.matrix[index_two][i].machine.id = temp_id_2
+
+
+    def evolve_population(self):
         """
         Evolve population will run generation of the
         genetic algorithm.
         """
-        raise NotImplementedError()
+        self._mutate(self.members[0])
 
     def fittest(self, size):
         return sorted(self.members, key=attrgetter('makespan'))
@@ -153,7 +162,7 @@ def parse_file(file_path):
 
 def start_ga(population):
     for i in range(GENERATIONS):
-        print('WOOO GA')
+        population.evolve_population()
 
 if __name__ == '__main__':
     args = parse_args()
