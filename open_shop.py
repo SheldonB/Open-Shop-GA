@@ -1,5 +1,7 @@
 import argparse, re, copy, random
 
+from operator import attrgetter
+
 class Machine(object):
     def __init__(self, id, power_factor):
         self.id = id
@@ -28,24 +30,27 @@ class Instance(object):
 
 class Schedule(object):
     def __init__(self, matrix):
-        # self.makespan = None
         self.matrix = matrix
+        self._makespan = None
     
     @property
     def makespan(self):
-        for i in range(len(self.matrix[0])):
-            for j in range(len(self.matrix)):
-                machine = self.matrix[j][i].machine
-                job = self.matrix[j][i].job
+        if self._makespan is None:
+            for i in range(len(self.matrix[0])):
+                for j in range(len(self.matrix)):
+                    machine = self.matrix[j][i].machine
+                    job = self.matrix[j][i].job
 
-                if job.finish_time > machine.total_time:
-                    machine.total_time = job.finish_time + (machine.power_factor * job.process_time)
-                else:
-                    machine.total_time = machine.total_time + (machine.power_factor * job.process_time)
+                    if job.finish_time > machine.total_time:
+                        machine.total_time = job.finish_time + (machine.power_factor * job.process_time)
+                    else:
+                        machine.total_time = machine.total_time + (machine.power_factor * job.process_time)
 
-                job.finish_time = machine.total_time
+                    job.finish_time = machine.total_time
 
-        return max([row[0].machine.total_time for row in self.matrix])
+            self._makespan = max([row[0].machine.total_time for row in self.matrix])
+        return self._makespan
+
 
 class Population(object):
     def __init__(self, machines, jobs, size):
@@ -72,12 +77,14 @@ class Population(object):
             s_copy = copy.deepcopy(schedule)
             rand_col_1 = random.randint(0, len(jobs) - 1)
             rand_col_2 = random.randint(0, len(jobs) - 1)
-            print(rand_col_1, rand_col_2)
             for row in s_copy:
                 row[rand_col_1], row[rand_col_2] = row[rand_col_2], row[rand_col_1]
             members.append(Schedule(s_copy))
         
         return members
+
+    def fittest(self, size):
+        return sorted(self.members, key=attrgetter('makespan'))
 
 def parse_args():
     arg_parser = argparse.ArgumentParser()
@@ -108,6 +115,8 @@ if __name__ == '__main__':
     data = parse_file(args.file)
 
     population = Population(data['machines'], data['jobs'], 100)
-
-    for member in population.members:
+    # fit = population.fittest(10)
+    # for f in fit:
+        # print(f.makespan)
+    for member in population.fittest(100):
         print(member.makespan)
