@@ -1,4 +1,4 @@
-import argparse, re, copy, random
+import argparse, re, copy, random, math
 
 from operator import attrgetter
 
@@ -111,7 +111,6 @@ class Population(object):
             for j, row in enumerate(parent_one.matrix):
                 child_matrix[j][i] = row[i]
 
-
         # Transpose the matrix of parent two, so we
         # now have an array of all columns, that can
         # be compared to the columns
@@ -158,15 +157,23 @@ class Population(object):
             member.matrix[index_one][i].machine.id = temp_id_1
             member.matrix[index_two][i].machine.id = temp_id_2
 
-
     def evolve_population(self):
         """
         Evolve population will run generation of the
         genetic algorithm.
         """
-        (parent_one, parent_two) = self.fittest(2)
+        (parent_one, parent_two) = self._selection()
 
         child = self._crossover(parent_one, parent_two)
+
+        print(parent_one.makespan, parent_two.makespan, child.makespan)
+
+    def _selection(self):
+        num_to_select = math.floor(len(self.members) * (GROUP/100))
+        sample = random.sample(range(0, len(self.members)), num_to_select)
+        print(sample)
+        sample_members = sorted([self.members[i] for i in sample], key=attrgetter('makespan'))
+        return sample_members[:2]
 
     def fittest(self, size):
         return sorted(self.members, key=attrgetter('makespan'))[:size]
@@ -185,6 +192,9 @@ def parse_args():
                             help='Mutation rate of the genetic algorithm. Default=2.5')
     arg_parser.add_argument('-g', '--generations', type=int, default=100,
                             help='The number of generations for the GA to run. Default=100')
+    arg_parser.add_argument('-gr', '--group', type=int, default=10,
+                            help='The percentage of the group to use for crossover \
+                                  selection. Default=10')
     return arg_parser.parse_args()
 
 def parse_file(file_path):
@@ -208,11 +218,16 @@ def parse_file(file_path):
 def start_ga(population):
     population.evolve_population()
 
+MUTATION = 0
+GENERATIONS = 0
+GROUP = 0
+
 if __name__ == '__main__':
     args = parse_args()
     POPULATION = args.population
     MUTATION = args.mutation
     GENERATIONS = args.generations
+    GROUP = args.group
     data = parse_file(args.file)
 
     population = Population(data['machines'], data['jobs'], POPULATION)
