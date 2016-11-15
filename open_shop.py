@@ -148,15 +148,17 @@ class Population(object):
         """
         raise NotImplementedError()
 
-    def evolve_population():
+    def evolve_population(self):
         """
         Evolve population will run generation of the
         genetic algorithm.
         """
-        raise NotImplementedError()
+        (parent_one, parent_two) = self.fittest(2)
+
+        child = self._crossover(parent_one, parent_two)
 
     def fittest(self, size):
-        return sorted(self.members, key=attrgetter('makespan'))
+        return sorted(self.members, key=attrgetter('makespan'))[:size]
 
     def kill_weak(self):
         weakest = max(self.members, key=attrgetter('makespan'))
@@ -193,8 +195,7 @@ def parse_file(file_path):
             }
 
 def start_ga(population):
-    for i in range(GENERATIONS):
-        print('WOOO GA')
+    population.evolve_population()
 
 if __name__ == '__main__':
     args = parse_args()
