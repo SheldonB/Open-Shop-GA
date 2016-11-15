@@ -171,7 +171,7 @@ class Population(object):
     def _selection(self):
         num_to_select = math.floor(len(self.members) * (GROUP/100))
         sample = random.sample(range(0, len(self.members)), num_to_select)
-        print(sample)
+
         sample_members = sorted([self.members[i] for i in sample], key=attrgetter('makespan'))
         return sample_members[:2]
 
