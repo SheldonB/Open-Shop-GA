@@ -2,16 +2,10 @@ import argparse, re, copy, random
 
 from operator import attrgetter
 
-POPULATION = 100
-MUTATION = .025
-GENERATIONS = 100
-
-
 class Machine(object):
     def __init__(self, id, power_factor):
         self.id = id
         self.power_factor = power_factor
-        self.total_time = 0
 
     def __repr__(self):
         return '{}: {}'.format(self.id, self.power_factor)
@@ -20,7 +14,6 @@ class Job(object):
     def __init__(self, id, time):
         self.id = id
         self.process_time = time
-        self.finish_time = 0
 
     def __repr__(self):
         return '{}: {}'.format(self.id, self.process_time)
