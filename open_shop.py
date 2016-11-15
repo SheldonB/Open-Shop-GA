@@ -30,7 +30,7 @@ class Schedule(object):
     def __init__(self, matrix):
         self.matrix = matrix
         self._makespan = None
-    
+
     @property
     def makespan(self):
         if self._makespan is None:
@@ -73,7 +73,7 @@ class Population(object):
                 to_rotate = row.pop(0)
                 row.append(to_rotate)
             schedule.append(row)
-        members.append(Schedule(schedule))  
+        members.append(Schedule(schedule))
 
         # To generate random members for the population
         # We can just swap the columns of the population
@@ -83,7 +83,7 @@ class Population(object):
             for row in s_copy:
                 row[rand_col_1], row[rand_col_2] = row[rand_col_2], row[rand_col_1]
             members.append(Schedule(s_copy))
-        
+
         return members
 
     def _crossover(self, parent_one, parent_two):
@@ -93,32 +93,33 @@ class Population(object):
         and returns a child member of the population.
         """
         # Initialze the child matrix
-        child_matrix = [[ 0 for j in range(len(parent_one.matrix[0])) ] for i in range(len(parent_one.matrix))]
-        
+        child_matrix = [[ 0 for j in range(len(parent_one.matrix[0]))]
+                                for i in range(len(parent_one.matrix))]
+
         # Choose random indicies for crossover
         (rand_col_1, rand_col_2) = random.sample(range(0, len(parent_one.matrix[0])) , 2)
-        
+
         # If random column 1 is bigger then
         # random column 2, then swap them
-        # just to make things easier 
+        # just to make things easier
         if rand_col_1 > rand_col_2:
-            rand_col_1, rand_col_2 = rand_col_2, rand_col_1 
-        
+            rand_col_1, rand_col_2 = rand_col_2, rand_col_1
+
         # Fill the columns of the child with the columns
         # of parent one between the two indicies
         for i in range(rand_col_1, rand_col_2):
             for j, row in enumerate(parent_one.matrix):
                 child_matrix[j][i] = row[i]
-       
-        
-        # Transpose the matrix of parent two, so we 
-        # now have an array of all columns, that can 
+
+
+        # Transpose the matrix of parent two, so we
+        # now have an array of all columns, that can
         # be compared to the columns
         parent_two_columns = list(map(list, zip(*parent_two.matrix)))
-        
-        # I am not a fan of this, but it converts the child 
+
+        # I am not a fan of this, but it converts the child
         # matrix to a reduced column matrix of just job numbers
-        child_matrix_columns = [] 
+        child_matrix_columns = []
         for column in zip(*child_matrix):
             if column[0] == 0:
                 child_matrix_columns.append(list(column))
@@ -140,7 +141,7 @@ class Population(object):
     def _mutate(self, member):
         """
         Mutation method for the genetic algorithm.
-        The method takes a member of the population 
+        The method takes a member of the population
         that is chosen based on the mutation rate.
 
         That member is then mutated, and a new member
@@ -150,7 +151,8 @@ class Population(object):
 
         temp_id_1 = member.matrix[index_one][0].machine.id
         temp_id_2 = member.matrix[index_two][0].machine.id
-        member.matrix[index_one], member.matrix[index_two] = member.matrix[index_two], member.matrix[index_one]
+        member.matrix[index_one], member.matrix[index_two] = member.matrix[index_two], \
+                                                             member.matrix[index_one]
 
         for i in range(len(member.matrix)):
             member.matrix[index_one][i].machine.id = temp_id_1
@@ -188,7 +190,7 @@ def parse_args():
 def parse_file(file_path):
     """
     Parse file returns a tuple of length two
-    that contains the processing power of the machines 
+    that contains the processing power of the machines
     """
     with open(file_path) as file:
         contents = file.read()
