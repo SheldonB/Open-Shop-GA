@@ -79,23 +79,65 @@ class Population(object):
         # We can just swap the columns of the population
         for i in range(1, self.population_size):
             s_copy = copy.deepcopy(schedule)
-            rand_col_1 = random.randint(0, len(jobs) - 1)
-            rand_col_2 = random.randint(0, len(jobs) - 1)
+            (rand_col_1, rand_col_2) = random.sample(range(0, len(jobs) - 1) , 2)
             for row in s_copy:
                 row[rand_col_1], row[rand_col_2] = row[rand_col_2], row[rand_col_1]
             members.append(Schedule(s_copy))
         
         return members
 
-    def _crossover(parent_one, parent_two):
+    def _crossover(self, parent_one, parent_two):
         """
         Crossover method for the genetic algorithm.
         The method takes two members of the population
         and returns a child member of the population.
         """
-        raise NotImplementedError()
+        # Initialze the child matrix
+        child_matrix = [[ 0 for j in range(len(parent_one.matrix[0])) ] for i in range(len(parent_one.matrix))]
+        
+        # Choose random indicies for crossover
+        (rand_col_1, rand_col_2) = random.sample(range(0, len(parent_one.matrix[0])) , 2)
+        
+        # If random column 1 is bigger then
+        # random column 2, then swap them
+        # just to make things easier 
+        if rand_col_1 > rand_col_2:
+            rand_col_1, rand_col_2 = rand_col_2, rand_col_1 
+        
+        # Fill the columns of the child with the columns
+        # of parent one between the two indicies
+        for i in range(rand_col_1, rand_col_2):
+            for j, row in enumerate(parent_one.matrix):
+                child_matrix[j][i] = row[i]
+       
+        
+        # Transpose the matrix of parent two, so we 
+        # now have an array of all columns, that can 
+        # be compared to the columns
+        parent_two_columns = list(map(list, zip(*parent_two.matrix)))
+        
+        # I am not a fan of this, but it converts the child 
+        # matrix to a reduced column matrix of just job numbers
+        child_matrix_columns = [] 
+        for column in zip(*child_matrix):
+            if column[0] == 0:
+                child_matrix_columns.append(list(column))
+            else:
+                child_matrix_columns.append([i.job.id for i in column])
 
-    def _mutate(member):
+        for column in parent_two_columns:
+            reduced_column = [i.job.id for i in column]
+
+            if reduced_column not in child_matrix_columns:
+                for i in range(len(child_matrix[0])):
+                    if child_matrix[0][i] == 0:
+                        for j in range(len(child_matrix)):
+                            child_matrix[j][i] = column[j]
+                        break
+
+        return Schedule(child_matrix)
+
+    def _mutate(self, member):
         """
         Mutation method for the genetic algorithm.
         The method takes a member of the population 
