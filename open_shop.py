@@ -146,7 +146,16 @@ class Population(object):
         That member is then mutated, and a new member
         is returned
         """
-        raise NotImplementedError()
+        (index_one, index_two) = random.sample(range(0, len(member.matrix)), 2)
+
+        temp_id_1 = member.matrix[index_one][0].machine.id
+        temp_id_2 = member.matrix[index_two][0].machine.id
+        member.matrix[index_one], member.matrix[index_two] = member.matrix[index_two], member.matrix[index_one]
+
+        for i in range(len(member.matrix)):
+            member.matrix[index_one][i].machine.id = temp_id_1
+            member.matrix[index_two][i].machine.id = temp_id_2
+
 
     def evolve_population(self):
         """
