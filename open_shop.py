@@ -34,19 +34,25 @@ class Schedule(object):
     @property
     def makespan(self):
         if self._makespan is None:
+            job_time = [0 for i in range(len(self.matrix[0]))]
+            machine_time = [0 for i in range(len(self.matrix))]
+
             for i in range(len(self.matrix[0])):
                 for j in range(len(self.matrix)):
                     machine = self.matrix[j][i].machine
                     job = self.matrix[j][i].job
 
-                    if job.finish_time > machine.total_time:
-                        machine.total_time = job.finish_time + (machine.power_factor * job.process_time)
+                    if job_time[job.id - 1] > machine_time[machine.id - 1]:
+                        machine_time[machine.id - 1] = job_time[job.id - 1] + \
+                            (machine.power_factor * job.process_time)
                     else:
-                        machine.total_time = machine.total_time + (machine.power_factor * job.process_time)
+                        machine_time[machine.id - 1] = machine_time[machine.id - 1] + \
+                            (machine.power_factor * job.process_time)
 
-                    job.finish_time = machine.total_time
+                    job_time[job.id - 1] = machine_time[machine.id - 1]
 
-            self._makespan = max([row[0].machine.total_time for row in self.matrix])
+            self._makespan = max(machine_time)
+
         return self._makespan
 
 
