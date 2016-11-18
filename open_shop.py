@@ -44,13 +44,13 @@ class Schedule(object):
 
                     if job_time[job.id - 1] > machine_time[machine.id - 1]:
                         machine_time[machine.id - 1] = job_time[job.id - 1] + \
-                            (machine.power_factor * job.process_time)
+                                (machine.power_factor * job.process_time)
                     else:
                         machine_time[machine.id - 1] = machine_time[machine.id - 1] + \
-                            (machine.power_factor * job.process_time)
+                                (machine.power_factor * job.process_time)
 
                     job_time[job.id - 1] = machine_time[machine.id - 1]
-
+            print(machine_time)
             self._makespan = max(machine_time)
 
         return self._makespan
@@ -125,14 +125,14 @@ class Population(object):
             else:
                 child_matrix_columns.append([i.job.id for i in column])
 
-        for column in parent_two_columns:
-            reduced_column = [i.job.id for i in column]
+        for cand_column in parent_two_columns:
+            r_cand_column = [i.job.id for i in cand_column]
 
-            if reduced_column not in child_matrix_columns:
+            if r_cand_column not in child_matrix_columns:
                 for i in range(len(child_matrix[0])):
                     if child_matrix[0][i] == 0:
                         for j in range(len(child_matrix)):
-                            child_matrix[j][i] = column[j]
+                            child_matrix[j][i] = cand_column[j]
                         break
 
         return Schedule(child_matrix)
@@ -147,15 +147,19 @@ class Population(object):
         is returned
         """
         (index_one, index_two) = random.sample(range(0, len(member.matrix)), 2)
+        for row in member.matrix:
+            row[index_one], row[index_two] = row[index_two], row[index_one]
 
-        temp_id_1 = member.matrix[index_one][0].machine.id
-        temp_id_2 = member.matrix[index_two][0].machine.id
-        member.matrix[index_one], member.matrix[index_two] = member.matrix[index_two], \
-                                                             member.matrix[index_one]
 
-        for i in range(len(member.matrix)):
-            member.matrix[index_one][i].machine.id = temp_id_1
-            member.matrix[index_two][i].machine.id = temp_id_2
+        # temp_id_1 = member.matrix[index_one][0].machine.id
+        # temp_id_2 = member.matrix[index_two][0].machine.id
+        # member.matrix[index_one], member.matrix[index_two] = member.matrix[index_two], \
+                                                             # member.matrix[index_one]
+
+        # for i in range(len(member.matrix)):
+            # member.matrix[index_one][i].machine.id = temp_id_1
+            # member.matrix[index_two][i].machine.id = temp_id_2
+        member._makespan = None
 
     def evolve_population(self):
         """
@@ -166,7 +170,15 @@ class Population(object):
 
         child = self._crossover(parent_one, parent_two)
 
-        print(parent_one.makespan, parent_two.makespan, child.makespan)
+        self.kill_weak()
+        self.members.append(child)
+
+        for member in self.members:
+            if random.random() < MUTATION:
+                self._mutate(member)
+        for row in self.fittest(1)[0].matrix:
+            print([i.job.id for i in row])
+        print(self.fittest(1)[0].makespan)
 
     def _selection(self):
         num_to_select = math.floor(len(self.members) * (GROUP/100))
@@ -216,7 +228,8 @@ def parse_file(file_path):
             }
 
 def start_ga(population):
-    population.evolve_population()
+    for i in range(GENERATIONS):
+        population.evolve_population()
 
 MUTATION = 0
 GENERATIONS = 0
