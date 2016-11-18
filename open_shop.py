@@ -50,7 +50,7 @@ class Schedule(object):
                                 (machine.power_factor * job.process_time)
 
                     job_time[job.id - 1] = machine_time[machine.id - 1]
-            print(machine_time)
+
             self._makespan = max(machine_time)
 
         return self._makespan
@@ -170,15 +170,20 @@ class Population(object):
 
         child = self._crossover(parent_one, parent_two)
 
-        self.kill_weak()
         self.members.append(child)
 
         for member in self.members:
             if random.random() < MUTATION:
                 self._mutate(member)
-        for row in self.fittest(1)[0].matrix:
+        self.kill_weak()
+        fit = self.fittest(1)[0]
+        for row in fit.matrix:
             print([i.job.id for i in row])
-        print(self.fittest(1)[0].makespan)
+        print(fit.makespan)
+        # fit = sorted(self.members, key=attrgetter('makespan'))[0]
+
+        # weak = sorted(self.members, key=attrgetter('makespan'))[-1]
+        # print(fit.makespan, weak.makespan)
 
     def _selection(self):
         num_to_select = math.floor(len(self.members) * (GROUP/100))
